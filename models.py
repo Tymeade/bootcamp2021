@@ -73,20 +73,15 @@ class TfIdf:
 
         return self._model
 
-    # def predict(self, texts):
-    #     _, _, _, _, embeds, _, _ = self.model(texts)
-    #     return embeds
-    #
-    # def answer(self, question, answers):
-    #     q_embed, *ans_embed = self.predict([question] + answers)
-    #
-    #     best_answer = min([(n, scipy.spatial.distance.cosine(q_embed, ans))
-    #                        for n, ans in enumerate(ans_embed, 1)
-    #                        ], key=lambda x: x[1])
-    #
-    #     print('embeds answer', best_answer[0])
-    #
-    #     return best_answer[0]
+    def answer(self, question, answers):
+        q, *ans = self.model([question] + answers)
+
+        for n, a in enumerate(ans, 1):
+            if q == a:
+                print('Guessed!')
+                return n
+
+        return 1
 
 
 model_odqa = ODQA()

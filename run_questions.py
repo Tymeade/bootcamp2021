@@ -1,6 +1,7 @@
 import pandas as pd
 
 from models import model_embed, model_tfidf
+from search import ElasticModel
 
 data_file = 'boot_camp_train.csv'
 
@@ -18,6 +19,7 @@ def get_score(model):
 
     for _, row in questions.iterrows():
         q = row['Вопрос']
+        print('---------------------------------')
         print(q)
         answers = list(row[['1', '2', '3', '4']])
         print(answers)
@@ -35,4 +37,4 @@ def get_score(model):
 
 
 if __name__ == '__main__':
-    model_tfidf
+    get_score(ElasticModel())
