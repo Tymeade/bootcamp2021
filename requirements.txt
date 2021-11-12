@@ -4,3 +4,7 @@ tensorflow-gpu==1.14.0
 deeppavlov
 pandas
 elasticsearch
+pymystem3
+pymorphy2
+natasha
+nltk
