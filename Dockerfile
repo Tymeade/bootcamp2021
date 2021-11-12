@@ -4,7 +4,7 @@ RUN pip install tensorflow-gpu==1.14.0
 RUN pip install deeppavlov
 RUN pip install pandas
 
-RIN mkdir /mnt/d/deeppavlov && chmod +rwx /mnt/d/deeppavlov
+RUN mkdir /mnt/d/deeppavlov && chmod +rwx /mnt/d/deeppavlov
 
 COPY . /app
 
