@@ -3,3 +3,4 @@ flask
 tensorflow-gpu==1.14.0
 deeppavlov
 pandas
+elasticsearch
