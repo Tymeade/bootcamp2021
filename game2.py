@@ -40,7 +40,7 @@ money = [
     1_000_000,
 ]
 
-checkpoint = 'checkpoint_000011/checkpoint-11'
+checkpoint = 'checkpoint_000009/checkpoint-9'
 
 
 def get_reward(q_num):
@@ -78,10 +78,10 @@ class GameEnv2(gym.Env):
                 Discrete(2),
                 Discrete(2),
                 Discrete(2),
-                Box(0, 1, shape=(1,)),
-                Box(0, 1, shape=(1,)),
-                Box(0, 1, shape=(1,)),
-                Box(0, 1, shape=(1,)),
+                Box(0, 2, shape=(1,)),
+                Box(0, 2, shape=(1,)),
+                Box(0, 2, shape=(1,)),
+                Box(0, 2, shape=(1,)),
             ])
 
         self.reward_range = (-10_000, 1_000_000)
@@ -355,7 +355,7 @@ class GameEnv2(gym.Env):
                    [scores[1]],
                    [scores[2]],
                    [scores[3]],
-               ], correct
+               ], int(correct.split('.')[0])
 
     @property
     def trainer(self):
@@ -408,7 +408,6 @@ config = {
 }
 
 if __name__ == '__main__':
-
     import logging
 
     logging.captureWarnings(True)

@@ -10,6 +10,7 @@ def get_score(model):
     questions = preprocessing(pd.read_csv(data_file).dropna())
     total = 0
     correct = 0
+    rows = []
 
     questions['Вопрос'] = questions['Вопрос'].str.lower()
     questions['1'] = questions['1'].str.lower()
@@ -24,15 +25,15 @@ def get_score(model):
         answers = list(row[['1', '2', '3', '4']])
         # print(answers)
 
-        our_answer = model.answer(q, answers, False)
-
-        print('our_answer', our_answer,
-              'correct answer', row['Правильный ответ'])
+        row['scores'] = model.get_scores(q, answers)
+        rows.append(row)
 
         total += 1
-        if our_answer == row['Правильный ответ']:
-            correct += 1
-        print('Score', correct / total * 100, '%, out of ', total)
+
+        if total > 2000 and total % 50 == 0:
+            df = pd.concat(rows, axis=1)
+            df.to_csv('scores.csv', index=False)
+
 
     print('Score', correct / total * 100, '%')
 
@@ -59,7 +60,7 @@ def get_one_question_scores():
         neg = find_negative(q_words)
         answers = list(row[['1', '2', '3', '4']])
         correct = row['Правильный ответ']
-        yield q, answers, correct, row['scores']
+        yield q, answers, correct, eval(row['scores'])
 
 
 def compare(model_wiki, model_quotes):
@@ -140,6 +141,6 @@ def compare(model_wiki, model_quotes):
 
 if __name__ == '__main__':
     # compare(ElasticModelWiki(), ElasticModelQuotes())
-    q = get_one_question_scores()
-    # get_score(ElasticModelSource())
+    # q = get_one_question_scores()
+    get_score(ElasticModelWiki())
     pass
