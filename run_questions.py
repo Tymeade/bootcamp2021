@@ -47,8 +47,11 @@ def get_one_question():
         yield q, answers, correct
 
 
-def get_one_question_neg():
-    questions = pd.read_csv(data_file).dropna().sample(frac=1)
+def get_one_question_scores():
+    questions = pd.read_csv('scores.csv').T.dropna().sample(frac=1)
+    questions.columns = ['index', 'Вопрос', '1', '2', '3', '4', 'Правильный '
+                                                                'ответ',
+                         'scores']
 
     for _, row in questions.iterrows():
         q = row['Вопрос']
@@ -56,7 +59,7 @@ def get_one_question_neg():
         neg = find_negative(q_words)
         answers = list(row[['1', '2', '3', '4']])
         correct = row['Правильный ответ']
-        yield q, answers, correct, neg
+        yield q, answers, correct, row['scores']
 
 
 def compare(model_wiki, model_quotes):
@@ -137,6 +140,6 @@ def compare(model_wiki, model_quotes):
 
 if __name__ == '__main__':
     # compare(ElasticModelWiki(), ElasticModelQuotes())
-    # q = get_one_question()
-    get_score(ElasticModelSource())
+    q = get_one_question_scores()
+    # get_score(ElasticModelSource())
     pass

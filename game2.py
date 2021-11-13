@@ -19,7 +19,7 @@ from ray.rllib.utils.framework import try_import_tf, try_import_torch
 from ray.rllib.utils.test_utils import check_learning_achieved
 from ray.tune.logger import pretty_print
 
-from run_questions import get_one_question
+from run_questions import get_one_question, get_one_question_scores
 from search import ElasticModelQuotes, ElasticModelWiki
 
 money = [
@@ -88,7 +88,7 @@ class GameEnv2(gym.Env):
         # Set the seed. This is only used for the final (reach goal) reward.
         # self.seed(config.worker_index * config.num_workers)
 
-        self.questions = get_one_question()
+        self.questions = get_one_question_scores()
         self.model = ElasticModelWiki()
 
         self.question_number = 0
@@ -331,12 +331,12 @@ class GameEnv2(gym.Env):
         # money,
         # 2-4 helps, 5 model ans, 5 score
         try:
-            question, answers, correct = self.questions.send(None)
+            question, answers, correct, scores = self.questions.send(None)
         except StopIteration:
-            self.questions = get_one_question()
-            question, answers, correct = self.questions.send(None)
+            self.questions = get_one_question_scores()
+            question, answers, correct, scores = self.questions.send(None)
 
-        scores = self.model.get_scores(question, answers)
+        # scores = self.model.get_scores(question, answers)
         self.scores = scores
 
         try:

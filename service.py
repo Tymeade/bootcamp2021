@@ -79,7 +79,7 @@ def result_question():
     return {'data': 'ok'}
 
 
-app.run(host='127.0.0.1', port=12302)
+app.run(host='0.0.0.0', port=12302)
 
 # команда-1: port=12301
 # команда-2: port=12302
