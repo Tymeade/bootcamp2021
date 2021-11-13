@@ -88,7 +88,7 @@ class GameEnv2(gym.Env):
         # Set the seed. This is only used for the final (reach goal) reward.
         # self.seed(config.worker_index * config.num_workers)
 
-        self.questions = get_one_question_scores()
+        self.questions = get_one_question()
         self.model = ElasticModelWiki()
 
         self.question_number = 0
@@ -333,7 +333,7 @@ class GameEnv2(gym.Env):
         try:
             question, answers, correct, scores = self.questions.send(None)
         except StopIteration:
-            self.questions = get_one_question_scores()
+            self.questions = get_one_question()
             question, answers, correct, scores = self.questions.send(None)
 
         # scores = self.model.get_scores(question, answers)
