@@ -1,63 +1,37 @@
-from flask import Flask
-from flask import request
+from flask import Flask, request
 
-from models import model_odqa
+from game2 import GameEnv2
 
 app = Flask(__name__)
+model = GameEnv2({})
 
 
 @app.route("/predict", methods=['POST'])
 def predict():
-    data = request.form.get('data')
+    data: dict = request.form.get('data')
 
-    #  data:
-    #  {
-    #
-    #    'number of game': 5,
-    #
-    #    'question': "Что есть у Пескова?",
-    #    'answer_1': "Усы",
-    #    'answer_2': "Борода",
-    #    'answer_3': "Лысина",
-    #    'answer_4': "Третья нога",
-    #
-    #    'question money': 4000,
-    #    'saved money': 1000,
-    #    'available help': ["fifty fifty", "can mistake", "take money"]
-    #
-    #  }
-    response = model_odqa.answer(data['question'],
-                                 [
-                                     data['answer_1'],
-                                     data['answer_2'],
-                                     data['answer_3'],
-                                     data['answer_4'],
-                                 ])
-    resp = {
-        'answer': response,
-    }
+    action = model.get_action(data['question'],
+                              [
+                                  data['answer_1'],
+                                  data['answer_2'],
+                                  data['answer_3'],
+                                  data['answer_4'],
+                              ],
+                              data['question money'],
+                              )
 
-    #  resp:
-    #  {
-    #
-    #    'help': "fifty fifty",
-    #
-    #  }
-
-    #  resp:
-    #  {
-    #
-    #    'help': "can mistake",
-    #    'answer': 1,
-    #
-    #  }
-
-    #  resp:
-    #  {
-    #
-    #    'end game': "take money",
-    #
-    #  }
+    if action == 'take money':
+        resp = {
+            'end game': "take money",
+        }
+    elif action in [0, 1, 2, 3]:
+        resp = {
+            'answer': action + 1,
+        }
+    else:
+        resp = {
+            'help': action,
+        }
 
     return resp
 
