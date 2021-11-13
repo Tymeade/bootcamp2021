@@ -1,0 +1,9 @@
+flask
+
+pandas
+elasticsearch
+pymystem3
+pymorphy2
+natasha
+nltk
+ray[rllib]
