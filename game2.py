@@ -368,34 +368,41 @@ class GameEnv2(gym.Env):
     def get_action(self, question, answers, q_sum,
                    help_1, help_2, help_3):
         scores = self.model.get_scores(question, answers)
-        obs = [
-            [q_sum],
-            [get_fixed_sum(q_sum)],
-            int(help_1),
-            int(help_2),
-            int(help_3),
-            [scores[0]],
-            [scores[1]],
-            [scores[2]],
-            [scores[3]],
-        ]
-        a = self.trainer.compute_single_action(
-            observation=obs,
-            explore=False,
-            policy_id="default_policy",  # <- default value
-        )
 
-        if a == 0:
-            action = max(enumerate(scores),
-                         key=lambda x: x[1])[0]
-        if a == 1:
-            action = 'take money'
-        if a == 2:
-            action = 'new question'
-        if a == 3:
-            action = 'fifty fifty'
-        if a == 4:
-            action = 'can mistake'
+        action = max(enumerate(scores),
+                     key=lambda x: x[1])[0]
+
+        # if q_sum > 100 and random.random():
+        #     return 'take money'
+
+        # obs = [
+        #     [q_sum],
+        #     [get_fixed_sum(q_sum)],
+        #     int(help_1),
+        #     int(help_2),
+        #     int(help_3),
+        #     [scores[0]],
+        #     [scores[1]],
+        #     [scores[2]],
+        #     [scores[3]],
+        # ]
+        # a = self.trainer.compute_single_action(
+        #     observation=obs,
+        #     explore=False,
+        #     policy_id="default_policy",  # <- default value
+        # )
+        #
+        # if a == 0:
+        #     action = max(enumerate(scores),
+        #                  key=lambda x: x[1])[0]
+        # if a == 1:
+        #     action = 'take money'
+        # if a == 2:
+        #     action = 'new question'
+        # if a == 3:
+        #     action = 'fifty fifty'
+        # if a == 4:
+        #     action = 'can mistake'
 
         return action
 
