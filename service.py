@@ -22,7 +22,7 @@ def predict():
                                   data['answer_3'],
                                   data['answer_4'],
                               ],
-                              data['question money'],
+                              int(data['question money']),
                               'new question' in data['available help'],
                               'fifty fifty' in data['available help'],
                               'can mistake' in data['available help'],
