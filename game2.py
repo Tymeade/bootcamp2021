@@ -372,8 +372,8 @@ class GameEnv2(gym.Env):
         action = max(enumerate(scores),
                      key=lambda x: x[1])[0]
 
-        # if q_sum > 100 and random.random():
-        #     return 'take money'
+        if q_sum > 300:
+            return 'take money'
 
         # obs = [
         #     [q_sum],
