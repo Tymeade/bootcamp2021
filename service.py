@@ -13,16 +13,16 @@ model = GameEnv2({})
 
 @app.route("/predict", methods=['POST'])
 def predict():
-    data: dict = request.form
+    data: dict = request.form.to_dict(flat=False)
 
-    action = model.get_action(data['question'],
+    action = model.get_action(data['question'][0],
                               [
-                                  data['answer_1'],
-                                  data['answer_2'],
-                                  data['answer_3'],
-                                  data['answer_4'],
+                                  data['answer_1'][0],
+                                  data['answer_2'][0],
+                                  data['answer_3'][0],
+                                  data['answer_4'][0],
                               ],
-                              int(data['question money']),
+                              int(data['question money'][0]),
                               'new question' in data['available help'],
                               'fifty fifty' in data['available help'],
                               'can mistake' in data['available help'],
