@@ -9,4 +9,5 @@ RUN pip3 install -r /app/requirements.txt
 
 ENV PYTHONPATH='/app'
 
-CMD ['start.sh']
+ENTRYPOINT ["python"]
+CMD ["/app/service.py"]

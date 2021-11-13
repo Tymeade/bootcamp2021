@@ -10,7 +10,7 @@ def normalize(data):
 
 
 class ElasticModelWiki():
-    es = Elasticsearch(request_timeout=20, timeout=60)
+    es = Elasticsearch(timeout=60)
     index = 'ruwiki'
 
     def _get_score(self, text):
@@ -55,6 +55,3 @@ class ElasticModelQuotes(ElasticModelWiki):
 class ElasticModelSource(ElasticModelWiki):
     index = 'wikisource'
 
-
-class ElasticModelProd(ElasticModelWiki):
-    index = 'wikiquote'

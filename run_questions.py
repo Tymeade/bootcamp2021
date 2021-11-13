@@ -1,7 +1,6 @@
 import pandas as pd
 
-from models import model_embed, model_tfidf
-from preprocess import preprocessing
+from preprocess import find_negative, normalize_pymorphy, preprocessing
 from search import ElasticModelQuotes, ElasticModelWiki, ElasticModelSource
 
 data_file = 'boot_camp_train.csv'
@@ -46,6 +45,18 @@ def get_one_question():
         answers = list(row[['1', '2', '3', '4']])
         correct = row['Правильный ответ']
         yield q, answers, correct
+
+
+def get_one_question_neg():
+    questions = pd.read_csv(data_file).dropna().sample(frac=1)
+
+    for _, row in questions.iterrows():
+        q = row['Вопрос']
+        q_words = normalize_pymorphy(q)
+        neg = find_negative(q_words)
+        answers = list(row[['1', '2', '3', '4']])
+        correct = row['Правильный ответ']
+        yield q, answers, correct, neg
 
 
 def compare(model_wiki, model_quotes):

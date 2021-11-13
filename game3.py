@@ -19,7 +19,7 @@ from ray.rllib.utils.framework import try_import_tf, try_import_torch
 from ray.rllib.utils.test_utils import check_learning_achieved
 from ray.tune.logger import pretty_print
 
-from run_questions import get_one_question
+from run_questions import get_one_question, get_one_question_neg
 from search import ElasticModelQuotes, ElasticModelWiki
 
 money = [
@@ -63,13 +63,13 @@ def get_fixed_sum(q_num):
     return 32000
 
 
-class GameEnv2(gym.Env):
+class GameEnv3(gym.Env):
     """Example of a custom env in which you have to walk down a corridor.
     You can configure the length of the corridor via the env config."""
 
     def __init__(self, config):
         self.cur_pos = 0
-        self.action_space = Discrete(5)  # 0 answers, 1 take money, 2-4 help
+        self.action_space = Discrete(8)  # 0 answers, 1 take money, 2-4 help
         self.observation_space = Tuple(
             [
                 Box(100, 1_000_000, shape=(1,)),
@@ -82,14 +82,15 @@ class GameEnv2(gym.Env):
                 Box(0, 1, shape=(1,)),
                 Box(0, 1, shape=(1,)),
                 Box(0, 1, shape=(1,)),
+                Discrete(2),  # neg
             ])
 
         self.reward_range = (-10_000, 1_000_000)
         # Set the seed. This is only used for the final (reach goal) reward.
         # self.seed(config.worker_index * config.num_workers)
 
-        self.questions = get_one_question()
-        self.model = ElasticModelWiki()
+        self.questions = get_one_question_neg()
+        self.model = ElasticModelQuotes()
 
         self.question_number = 0
         self.previous_correct = None
@@ -123,7 +124,7 @@ class GameEnv2(gym.Env):
             action = action[0]
         print(f'Question num {self.question_number}', 'action ', action)
 
-        if action == 1:
+        if action == 4:
             print('Taking money')
             return (
                 [
@@ -132,15 +133,15 @@ class GameEnv2(gym.Env):
                     self.avail_helps[0],
                     self.avail_helps[1],
                     self.avail_helps[2],
-                    [0], [0], [0], [0],
+                    [0], [0], [0], [0], [0],
                 ],
                 get_reward(self.question_number) if self.question_number else
-                -100,
+                -10000,
                 True,
                 {}
             )
 
-        if action == 2 and self.avail_helps[0]:
+        if action == 5 and self.avail_helps[0]:
             print('next q')
             self.obs, correct = self._get_observation()
             self.previous_correct = correct
@@ -154,7 +155,7 @@ class GameEnv2(gym.Env):
                 {}
             )
 
-        if action == 3 and self.avail_helps[1]:
+        if action == 6 and self.avail_helps[1]:
             print('5050')
             self.avail_helps[1] = 0
             second_question = (self.previous_correct + 1) % 4
@@ -176,6 +177,7 @@ class GameEnv2(gym.Env):
                 (self.obs[
                      8] if self.previous_correct == 3 or second_question == 3
                  else [0]),
+                self.obs[9],
             ]
 
             reward = get_fixed(self.question_number)
@@ -186,7 +188,7 @@ class GameEnv2(gym.Env):
                 {}
             )
 
-        if action == 4 and self.avail_helps[2]:
+        if action == 7 and self.avail_helps[2]:
             print('cm')
             self.avail_helps[2] = 0
             scores = self.scores
@@ -207,6 +209,7 @@ class GameEnv2(gym.Env):
                     (self.obs[6] if best != 1 else [0]),
                     (self.obs[7] if best != 2 else [0]),
                     (self.obs[8] if best != 3 else [0]),
+                    self.obs[9],
                 ]
 
                 reward = get_fixed(self.question_number)
@@ -217,7 +220,7 @@ class GameEnv2(gym.Env):
                     {}
                 )
 
-        if action == 2 and not self.avail_helps[0]:
+        if action == 5 and not self.avail_helps[0]:
             print('next wrong')
             return (
                 [
@@ -226,14 +229,14 @@ class GameEnv2(gym.Env):
                     self.avail_helps[0],
                     self.avail_helps[1],
                     self.avail_helps[2],
-                    [0], [0], [0], [0],
+                    [0], [0], [0], [0], 0,
                 ],
                 -10_0,
                 True,
                 {}
             )
 
-        if action == 3 and not self.avail_helps[1]:
+        if action == 6 and not self.avail_helps[1]:
             print('5050 wrong')
             return (
                 [
@@ -242,14 +245,14 @@ class GameEnv2(gym.Env):
                     self.avail_helps[0],
                     self.avail_helps[1],
                     self.avail_helps[2],
-                    [0], [0], [0], [0],
+                    [0], [0], [0], [0], 0,
                 ],
                 -10_0,
                 True,
                 {}
             )
 
-        if action == 4 and not self.avail_helps[2]:
+        if action == 7 and not self.avail_helps[2]:
             print('cm wrong')
             return (
                 [
@@ -258,15 +261,15 @@ class GameEnv2(gym.Env):
                     self.avail_helps[0],
                     self.avail_helps[1],
                     self.avail_helps[2],
-                    [0], [0], [0], [0],
+                    [0], [0], [0], [0], 0,
                 ],
                 -100,
                 True,
                 {}
             )
 
-        action = max(enumerate(self.scores),
-                     key=lambda x: x[1])[0]
+        # action = max(enumerate(self.scores),
+        #              key=lambda x: x[1])[0]
 
         if (self.previous_correct is not None
                 and self.previous_correct != action):
@@ -278,7 +281,7 @@ class GameEnv2(gym.Env):
                     self.avail_helps[0],
                     self.avail_helps[1],
                     self.avail_helps[2],
-                    [0], [0], [0], [0],
+                    [0], [0], [0], [0], 0,
                 ],
                 get_fixed(self.question_number),
                 True,
@@ -331,10 +334,10 @@ class GameEnv2(gym.Env):
         # money,
         # 2-4 helps, 5 model ans, 5 score
         try:
-            question, answers, correct = self.questions.send(None)
+            question, answers, correct, neg = self.questions.send(None)
         except StopIteration:
             self.questions = get_one_question()
-            question, answers, correct = self.questions.send(None)
+            question, answers, correct, neg = self.questions.send(None)
 
         scores = self.model.get_scores(question, answers)
         self.scores = scores
@@ -355,6 +358,7 @@ class GameEnv2(gym.Env):
                    [scores[1]],
                    [scores[2]],
                    [scores[3]],
+                   neg,
                ], correct
 
     @property
@@ -365,15 +369,12 @@ class GameEnv2(gym.Env):
 
         return self._trainer
 
-    def get_action(self, question, answers, q_sum,
-                   help_1, help_2, help_3):
+    def get_action(self, question, answers, q_sum, help_1, help_2, help_3):
         scores = self.model.get_scores(question, answers)
         obs = [
-            [q_sum],
+            q_sum,
             [get_fixed_sum(q_sum)],
-            int(help_1),
-            int(help_2),
-            int(help_3),
+            help_1, help_2, help_3
             [scores[0]],
             [scores[1]],
             [scores[2]],
@@ -386,12 +387,12 @@ class GameEnv2(gym.Env):
         )
 
         if a == 0:
-            action = max(enumerate(scores),
+            action = max(enumerate(self.scores),
                          key=lambda x: x[1])[0]
         if a == 1:
             action = 'take money'
         if a == 2:
-            action = 'new question'
+            action = 'next question'
         if a == 3:
             action = 'fifty fifty'
         if a == 4:
@@ -400,21 +401,20 @@ class GameEnv2(gym.Env):
         return action
 
 
-config = {
-    "env": GameEnv2,
-    "env_config": {
-    },
-    "num_workers": 1,
-}
-
 if __name__ == '__main__':
+    config = {
+        "env": GameEnv3,
+        "env_config": {
+        },
+        "num_workers": 1,
+    }
 
     import logging
 
     logging.captureWarnings(True)
 
     tune.run(PPOTrainer,
-             config={"env": GameEnv2, "num_workers": 1},
+             config={"env": GameEnv3, "num_workers": 1},
              # stop={"training_iteration": 1},
              checkpoint_freq=1,
              )

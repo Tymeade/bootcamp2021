@@ -1,3 +1,8 @@
+import nltk
+
+nltk.download('stopwords')
+nltk.download('words')
+
 from flask import Flask, request
 
 from game2 import GameEnv2
@@ -18,6 +23,9 @@ def predict():
                                   data['answer_4'],
                               ],
                               data['question money'],
+                              'new question' in data['available help'],
+                              'fifty fifty' in data['available help'],
+                              'can mistake' in data['available help'],
                               )
 
     if action == 'take money':
@@ -80,3 +88,15 @@ app.run(host='127.0.0.1', port=12302)
 # команда-5: port=12305
 # команда-6: port=12306
 # команда-7: port=12307
+
+# if __name__ == '__main__':
+#     predict({
+#         'question': 'У какого народа утвердительный, в нашем понимании, '
+#                     'кивок головой означает отрицание',
+#         'answer_1': 'Болгары',
+#         'answer_2': 'Чехи',
+#         'answer_3': 'Поляки',
+#         'answer_4': 'Венгры',
+#         'available help': [],
+#         'question money': 100,
+#     })
